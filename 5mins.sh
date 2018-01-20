@@ -1,4 +1,4 @@
-#/bin/bash
+#!/bin/bash
 #
 # Copyright (c) 2018, Joe Jacobs
 # All rights reserved.
