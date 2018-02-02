@@ -53,3 +53,7 @@ echo "6. Set up firewall."
 apt-get install -y ufw
 ufw allow 22
 ufw enable
+
+echo ""
+echo "7. Set timezone."
+dpkg-reconfigure tzdata
