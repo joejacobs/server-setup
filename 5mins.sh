@@ -41,7 +41,7 @@ echo ""
 echo "4. Create new default user."
 echo -n "Enter new username: "
 read username
-adduser $username
+adduser ${username}
 
 echo ""
 echo "5. Lock down SSH."
@@ -57,3 +57,25 @@ ufw enable
 echo ""
 echo "7. Set timezone."
 dpkg-reconfigure tzdata
+
+echo ""
+echo "8. Install rsync."
+apt-get install -y rsync
+
+echo ""
+echo "9. Install vim."
+apt-get install -y vim
+
+echo ""
+echo "10. Creating .vimrc files"
+echo "syntax on" > ~/.vimrc
+echo "filetype plugin indent on" >> ~/.vimrc
+echo "set expandtab" >> ~/.vimrc
+echo "set shiftwidth=4" >> ~/.vimrc
+echo "set softtabstop=4" >> ~/.vimrc
+echo "syntax on" > /home/${username}/.vimrc
+echo "filetype plugin indent on" >> /home/${username}/.vimrc
+echo "set expandtab" >> /home/${username}/.vimrc
+echo "set shiftwidth=4" >> /home/${username}/.vimrc
+echo "set softtabstop=4" >> /home/${username}/.vimrc
+chown ${username}:${username} /home/${username}/.vimrc
