@@ -63,11 +63,15 @@ echo "8. Install rsync."
 apt-get install -y rsync
 
 echo ""
-echo "9. Install vim."
+echo "9. Install htop."
+apt-get install -y htop
+
+echo ""
+echo "10. Install vim."
 apt-get install -y vim
 
 echo ""
-echo "10. Creating .vimrc files"
+echo "11. Creating .vimrc files"
 echo "syntax on" > ~/.vimrc
 echo "filetype plugin indent on" >> ~/.vimrc
 echo "set expandtab" >> ~/.vimrc
