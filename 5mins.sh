@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (c) 2018, Joe Jacobs
+# Copyright (c) 2018-2019, Joe Jacobs
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification,
@@ -83,3 +83,7 @@ echo "set expandtab" >> /home/${username}/.vimrc
 echo "set shiftwidth=4" >> /home/${username}/.vimrc
 echo "set softtabstop=4" >> /home/${username}/.vimrc
 chown ${username}:${username} /home/${username}/.vimrc
+
+echo ""
+echo "12. Creating 2GB blank file"
+fallocate -l 2G ~/2GB.blank
