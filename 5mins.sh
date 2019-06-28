@@ -85,5 +85,10 @@ echo "set softtabstop=4" >> /home/${username}/.vimrc
 chown ${username}:${username} /home/${username}/.vimrc
 
 echo ""
-echo "12. Creating 2GB blank file"
+echo "12. Use vim as selected editor"
+echo 'SELECTED_EDITOR="/usr/bin/vim"' > ~/.selected_editor
+echo 'SELECTED_EDITOR="/usr/bin/vim"' > /home/${username}/.selected_editor
+
+echo ""
+echo "13. Creating 2GB blank file"
 fallocate -l 2G ~/2GB.blank
