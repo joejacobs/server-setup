@@ -28,9 +28,12 @@
 # BEGIN CONFIG
 borg_dir="/etc/borg"
 borg_version="1.1.10"
+borg_repo="/root/backup/borg"
+borg_backup_script_file="/root/borg-backup.sh"
 borg_i386_url="https://github.com/borgbackup/borg/releases/download/${borg_version}/borg-linux32"
 borg_amd64_url="https://github.com/borgbackup/borg/releases/download/${borg_version}/borg-linux64"
 borg_aarch64_url="https://dl.bintray.com/borg-binary-builder/borg-binaries/borg-${borg_version}-arm64"
+borg_backup_script_url="https://gist.githubusercontent.com/joejacobs/1cb08a5d1a925874e709a77cf9e33900/raw/borg-backup.sh"
 
 blank_file="/root/2GB.blank"
 
@@ -157,6 +160,33 @@ fi
 
 echo ""
 echo "14. Creating 2GB blank file"
-if [ ! -f ${blank_file} ]; then
+if [ -f ${blank_file} ]; then
+    echo "2GB blank file already exists at ${blank_file}"
+else
     fallocate -l 2G ${blank_file}
+fi
+
+echo ""
+echo "15. Initialising borg repo"
+read -s -p "Enter borg passphrase: " borg_passphrase
+echo ""
+read -s -p "Re-enter borg passphrase: " confirm_passphrase
+echo ""
+
+if [ ${borg_passphrase} != ${confirm_passphrase} ]; then
+    echo 'Passphrases do not match'
+    exit 2
+fi
+
+if [ -f "${borg_repo}/config" ] && [ -d "${borg_repo}/data" ]; then
+    echo "borg repo already initialised at ${borg_repo}"
+else
+    export BORG_PASSPHRASE=${borg_passphrase}
+    borg init -e repokey-blake2 --make-parent-dirs ${borg_repo}
+    borg key export ${borg_repo} /root/borg.key
+fi
+
+if [ ! -f ${borg_backup_script_file} ]; then
+    curl -L -o ${borg_backup_script_file} ${borg_backup_script_url}
+    sed -i -e "s/{borg-passphrase-here}/${borg_passphrase}/g" ${borg_backup_script_file}
 fi
