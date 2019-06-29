@@ -64,8 +64,7 @@ apt-get install -y fail2ban
 
 echo ""
 echo "4. Create new default user"
-echo -n "Enter new username: "
-read username
+read -p "Enter new username: " username
 user_dir="/home/${username}"
 
 if [ -d ${user_dir} ]; then
