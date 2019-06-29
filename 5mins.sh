@@ -34,22 +34,20 @@ borg_aarch64_url="https://dl.bintray.com/borg-binary-builder/borg-binaries/borg-
 
 blank_file="/root/2GB.blank"
 
-read -d '' vimrc_contents << EOF
-filetype plugin on
-filetype plugin indent on
-syntax on
-
-set smartindent
-set tabstop=4
-set shiftwidth=4
-set expandtab
-set linespace=7
-
-hi ColorColumn ctermbg=lightgrey guibg=lightgrey
-let &colorcolumn=join(range(81,90),",")
-set number
-set ruler
-EOF
+vimrc_contents="filetype plugin on
+\nfiletype plugin indent on
+\nsyntax on
+\n
+\nset smartindent
+\nset tabstop=4
+\nset shiftwidth=4
+\nset expandtab
+\nset linespace=7
+\n
+\nhi ColorColumn ctermbg=lightgrey guibg=lightgrey
+\nlet &colorcolumn=join(range(81,90),\",\")
+\nset number
+\nset ruler"
 # END CONFIG
 
 echo "1. Change root password"
@@ -134,11 +132,11 @@ root_vimrc="/root/.vimrc"
 user_vimrc="${user_dir}/.vimrc"
 
 if [ ! -f ${root_vimrc} ]; then
-    echo ${vimrc_contents} > ${root_vimrc}
+    echo -e ${vimrc_contents} > ${root_vimrc}
 fi
 
 if [ ! -f ${user_vimrc} ]; then
-    echo ${vimrc_contents} > ${user_vimrc}
+    echo -e ${vimrc_contents} > ${user_vimrc}
     chown ${username}:${username} ${user_vimrc}
 fi
 
