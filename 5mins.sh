@@ -25,70 +25,139 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-echo "1. Change root password."
+# BEGIN CONFIG
+borg_dir="/etc/borg"
+borg_version="1.1.10"
+borg_i386_url="https://github.com/borgbackup/borg/releases/download/${borg_version}/borg-linux32"
+borg_amd64_url="https://github.com/borgbackup/borg/releases/download/${borg_version}/borg-linux64"
+borg_aarch64_url="https://dl.bintray.com/borg-binary-builder/borg-binaries/borg-${borg_version}-arm64"
+
+blank_file="/root/2GB.blank"
+
+read -d '' vimrc_contents << EOF
+filetype plugin on
+filetype plugin indent on
+syntax on
+
+set smartindent
+set tabstop=4
+set shiftwidth=4
+set expandtab
+set linespace=7
+
+hi ColorColumn ctermbg=lightgrey guibg=lightgrey
+let &colorcolumn=join(range(81,90),",")
+set number
+set ruler
+EOF
+# END CONFIG
+
+echo "1. Change root password"
 passwd
 
 echo ""
-echo "2. Update and upgrade."
+echo "2. Update and upgrade"
 apt-get update
 apt-get upgrade -y
 
 echo ""
-echo "3. Install fail2ban."
+echo "3. Install fail2ban"
 apt-get install -y fail2ban
 
 echo ""
-echo "4. Create new default user."
+echo "4. Create new default user"
 echo -n "Enter new username: "
 read username
-adduser ${username}
+user_dir="/home/${username}"
+
+if [ -d ${user_dir} ]; then
+    echo "User ${username} already exists"
+else
+    adduser ${username}
+fi
 
 echo ""
-echo "5. Lock down SSH."
+echo "5. Lock down SSH"
 sed -i -e 's/PermitRootLogin yes/PermitRootLogin no/g' /etc/ssh/sshd_config
 service ssh restart
 
 echo ""
-echo "6. Set up firewall."
+echo "6. Set up firewall"
 apt-get install -y ufw
 ufw allow 22
 ufw enable
 
 echo ""
-echo "7. Set timezone."
+echo "7. Set timezone"
 dpkg-reconfigure tzdata
 
 echo ""
-echo "8. Install rsync."
+echo "8. Install rsync"
 apt-get install -y rsync
 
 echo ""
-echo "9. Install htop."
+echo "9. Install htop"
 apt-get install -y htop
 
 echo ""
-echo "10. Install vim."
+echo "10. Install vim"
 apt-get install -y vim
 
 echo ""
-echo "11. Creating .vimrc files"
-echo "syntax on" > ~/.vimrc
-echo "filetype plugin indent on" >> ~/.vimrc
-echo "set expandtab" >> ~/.vimrc
-echo "set shiftwidth=4" >> ~/.vimrc
-echo "set softtabstop=4" >> ~/.vimrc
-echo "syntax on" > /home/${username}/.vimrc
-echo "filetype plugin indent on" >> /home/${username}/.vimrc
-echo "set expandtab" >> /home/${username}/.vimrc
-echo "set shiftwidth=4" >> /home/${username}/.vimrc
-echo "set softtabstop=4" >> /home/${username}/.vimrc
-chown ${username}:${username} /home/${username}/.vimrc
+echo "11. Install borg"
+borg_bin="${borg_dir}/borg-${borg_version}"
+arch=`uname -m`
+
+if [ ${arch} == 'aarch64' ]; then
+    borg_url=${borg_aarch64_url}
+elif [ ${arch} == 'x86_64' ] || [ ${arch} == 'amd64' ]; then
+    borg_url=${borg_amd64_url}
+else
+    borg_url=${borg_i386_url}
+fi
+
+mkdir -p ${borg_dir}
+
+if [ ! -f ${borg_bin} ]; then
+    curl -L -o ${borg_bin} ${borg_url}
+fi
+
+chmod +x ${borg_bin}
+
+if [ ! -f /usr/bin/borg ]; then
+    ln -s ${borg_bin} /usr/bin/borg
+fi
 
 echo ""
-echo "12. Use vim as selected editor"
-echo 'SELECTED_EDITOR="/usr/bin/vim"' > ~/.selected_editor
-echo 'SELECTED_EDITOR="/usr/bin/vim"' > /home/${username}/.selected_editor
+echo "12. Creating .vimrc files"
+root_vimrc="/root/.vimrc"
+user_vimrc="${user_dir}/.vimrc"
+
+if [ ! -f ${root_vimrc} ]; then
+    echo ${vimrc_contents} > ${root_vimrc}
+fi
+
+if [ ! -f ${user_vimrc} ]; then
+    echo ${vimrc_contents} > ${user_vimrc}
+    chown ${username}:${username} ${user_vimrc}
+fi
 
 echo ""
-echo "13. Creating 2GB blank file"
-fallocate -l 2G ~/2GB.blank
+echo "13. Set vim as selected editor"
+root_selected_editor="/root/.selected_editor"
+user_selected_editor="${user_dir}/.selected_editor"
+
+if [ ! -f ${root_selected_editor} ]; then
+    echo 'SELECTED_EDITOR="/usr/bin/vim"' > ${root_selected_editor}
+fi
+
+if [ ! -f ${user_selected_editor} ]; then
+    echo 'SELECTED_EDITOR="/usr/bin/vim"' > ${user_selected_editor}
+    chown ${username}:${username} ${user_selected_editor}
+fi
+
+echo ""
+echo "14. Creating 2GB blank file"
+if [ ! -f ${blank_file} ]; then
+    fallocate -l 2G ${blank_file}
+fi
