@@ -122,7 +122,7 @@ fi
 
 chmod +x ${borg_bin}
 
-if [ ! -f /usr/bin/borg ]; then
+if [ -f /usr/bin/borg ]; then
     rm /usr/bin/borg
 fi
 
