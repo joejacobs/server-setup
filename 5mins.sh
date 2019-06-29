@@ -123,8 +123,10 @@ fi
 chmod +x ${borg_bin}
 
 if [ ! -f /usr/bin/borg ]; then
-    ln -s ${borg_bin} /usr/bin/borg
+    rm /usr/bin/borg
 fi
+
+ln -s ${borg_bin} /usr/bin/borg
 
 echo ""
 echo "12. Creating .vimrc files"
