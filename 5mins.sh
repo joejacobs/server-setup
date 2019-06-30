@@ -168,26 +168,52 @@ fi
 
 echo ""
 echo "15. Initialising borg repo"
-read -s -p "Enter borg passphrase: " borg_passphrase
-echo ""
-read -s -p "Re-enter borg passphrase: " confirm_passphrase
-echo ""
-
-if [ $borg_passphrase != $confirm_passphrase ]; then
-    echo 'Passphrases do not match'
-    exit 2
-fi
 
 if [ -f "$borg_repo/config" ] && [ -d "$borg_repo/data" ]; then
     echo "borg repo already initialised at $borg_repo"
 else
+    read -s -p "Enter borg passphrase: " borg_passphrase
+    echo ""
+    read -s -p "Re-enter borg passphrase: " confirm_passphrase
+    echo ""
+
+    if [ $borg_passphrase != $confirm_passphrase ]; then
+        echo 'Passphrases do not match'
+        exit 2
+    fi
+
     export BORG_PASSPHRASE=$borg_passphrase
     borg init -e repokey-blake2 --make-parent-dirs $borg_repo
     borg key export $borg_repo /root/borg.key
 fi
 
 if [ ! -f $borg_script_file ]; then
+    if [ -z $borg_passphrase ]; then
+        read -s -p "Enter borg passphrase: " borg_passphrase
+        echo ""
+        read -s -p "Re-enter borg passphrase: " confirm_passphrase
+        echo ""
+
+        if [ $borg_passphrase != $confirm_passphrase ]; then
+            echo 'Passphrases do not match'
+            exit 2
+        fi
+    fi
+
     curl -L -o $borg_script_file $borg_script_url
-    sed -i -e "s/{borg-repo-here}/$borg_repo/g" $borg_script_file
-    sed -i -e "s/{borg-passphrase-here}/$borg_passphrase/g" $borg_script_file
+    sed -i -e "s/{borg-repo-here}/${borg_repo//\//\\\/}/g" $borg_script_file
+    sed -i -e "s/{borg-passphrase-here}/${borg_passphrase//\//\\\/}/g" $borg_script_file
+fi
+
+echo ""
+echo "16. Add hourly borg cron job"
+
+if [ ! -f /var/spool/cron/crontabs/root ]; then
+    touch /var/spool/cron/crontabs/root
+fi
+
+cron=$(crontab -l)
+
+if [[ $cron != *"$borg_script_file"* ]]; then
+    crontab -l | { cat; echo "0 * * * * $borg_script_file"; } | crontab -
 fi
