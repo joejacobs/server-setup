@@ -205,6 +205,8 @@ if [ ! -f $borg_script_file ]; then
     sed -i -e "s/{borg-passphrase-here}/${borg_passphrase//\//\\\/}/g" $borg_script_file
 fi
 
+chmod u+x $borg_script_file
+
 echo ""
 echo "16. Add hourly borg cron job"
 
