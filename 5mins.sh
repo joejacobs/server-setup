@@ -29,11 +29,11 @@
 borg_dir="/etc/borg"
 borg_version="1.1.10"
 borg_repo="/root/backup/borg"
-borg_backup_script_file="/root/borg-backup.sh"
+borg_script_file="/root/borg-backup.sh"
 borg_i386_url="https://github.com/borgbackup/borg/releases/download/$borg_version/borg-linux32"
 borg_amd64_url="https://github.com/borgbackup/borg/releases/download/$borg_version/borg-linux64"
 borg_aarch64_url="https://dl.bintray.com/borg-binary-builder/borg-binaries/borg-$borg_version-arm64"
-borg_backup_script_url="https://gist.githubusercontent.com/joejacobs/1cb08a5d1a925874e709a77cf9e33900/raw/borg-backup.sh"
+borg_script_url="https://gist.githubusercontent.com/joejacobs/1cb08a5d1a925874e709a77cf9e33900/raw/borg-backup.sh"
 
 blank_file="/root/2GB.blank"
 
@@ -186,8 +186,8 @@ else
     borg key export $borg_repo /root/borg.key
 fi
 
-if [ ! -f $borg_backup_script_file ]; then
-    curl -L -o $borg_backup_script_file $borg_backup_script_url
-    sed -i -e "s/{borg-repo-here}/$borg_repo/g" $borg_backup_script_file
-    sed -i -e "s/{borg-passphrase-here}/$borg_passphrase/g" $borg_backup_script_file
+if [ ! -f $borg_script_file ]; then
+    curl -L -o $borg_script_file $borg_script_url
+    sed -i -e "s/{borg-repo-here}/$borg_repo/g" $borg_script_file
+    sed -i -e "s/{borg-passphrase-here}/$borg_passphrase/g" $borg_script_file
 fi
