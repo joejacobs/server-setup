@@ -6,11 +6,9 @@
 borg_dir="/etc/borg"
 borg_version="1.1.10"
 borg_repo="/root/backup/borg"
-borg_script_file="/root/borg-backup.sh"
 borg_i386_url="https://github.com/borgbackup/borg/releases/download/$borg_version/borg-linux32"
 borg_amd64_url="https://github.com/borgbackup/borg/releases/download/$borg_version/borg-linux64"
 borg_aarch64_url="https://dl.bintray.com/borg-binary-builder/borg-binaries/borg-$borg_version-arm64"
-borg_script_url="https://gist.githubusercontent.com/joejacobs/1cb08a5d1a925874e709a77cf9e33900/raw/borg-backup.sh"
 
 blank_file="/root/2GB.blank"
 
@@ -145,6 +143,9 @@ fi
 
 echo ""
 echo "15. Initialising borg repo"
+borg_script="$PWD/borg-backup.sh"
+borg_script_contents=$(cat $borg_script)
+chmod u+x $borg_script
 
 if [ -f "$borg_repo/config" ] && [ -d "$borg_repo/data" ]; then
     echo "borg repo already initialised at $borg_repo"
@@ -164,7 +165,7 @@ else
     borg key export $borg_repo /root/borg.key
 fi
 
-if [ ! -f $borg_script_file ]; then
+if [[ $borg_script_contents == *"{borg-repo-here}"* ]]; then
     if [ -z $borg_passphrase ]; then
         read -s -p "Enter borg passphrase: " borg_passphrase
         echo ""
@@ -177,12 +178,9 @@ if [ ! -f $borg_script_file ]; then
         fi
     fi
 
-    curl -L -o $borg_script_file $borg_script_url
-    sed -i -e "s/{borg-repo-here}/${borg_repo//\//\\\/}/g" $borg_script_file
-    sed -i -e "s/{borg-passphrase-here}/${borg_passphrase//\//\\\/}/g" $borg_script_file
+    sed -i -e "s/{borg-repo-here}/${borg_repo//\//\\\/}/g" $borg_script
+    sed -i -e "s/{borg-passphrase-here}/${borg_passphrase//\//\\\/}/g" $borg_script
 fi
-
-chmod u+x $borg_script_file
 
 echo ""
 echo "16. Add hourly borg cron job"
@@ -193,6 +191,6 @@ fi
 
 cron=$(crontab -l)
 
-if [[ $cron != *"$borg_script_file"* ]]; then
-    crontab -l | { cat; echo "0 * * * * $borg_script_file"; } | crontab -
+if [[ $cron != *"$borg_script"* ]]; then
+    crontab -l | { cat; echo "0 * * * * $borg_script"; } | crontab -
 fi
