@@ -10,6 +10,7 @@ borg_i386_url="https://github.com/borgbackup/borg/releases/download/$borg_versio
 borg_amd64_url="https://github.com/borgbackup/borg/releases/download/$borg_version/borg-linux64"
 borg_aarch64_url="https://dl.bintray.com/borg-binary-builder/borg-binaries/borg-$borg_version-arm64"
 
+blank_file_size=2147483648
 blank_file="/root/2GB.blank"
 
 vimrc_contents="filetype plugin on
@@ -135,10 +136,21 @@ fi
 
 echo ""
 echo "14. Creating 2GB blank file"
+make_blank_file=1
+
 if [ -f $blank_file ]; then
-    echo "2GB blank file already exists at $blank_file"
-else
-    fallocate -l 2G $blank_file
+    actual_file_size=$(wc -c < $blank_file)
+
+    if [ $actual_file_size -ge $blank_file_size ]; then
+        echo "2GB blank file already exists at $blank_file"
+        make_blank_file=0
+    else
+        rm $blank_file
+    fi
+fi
+
+if [ $make_blank_file -eq 1 ]; then
+    fallocate -l $blank_file_size $blank_file
 fi
 
 echo ""
