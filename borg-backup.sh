@@ -43,7 +43,7 @@ borg create                         \
     --list                          \
     --stats                         \
     --show-rc                       \
-    --compression lz4               \
+    --compression lzma              \
     --exclude-caches                \
     --exclude '/home/*/.cache/*'    \
     --exclude '/root/backup/*'      \
