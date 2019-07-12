@@ -8,9 +8,11 @@
 log_dir=/var/log/borg
 log_file=$log_dir/`date -Iseconds`.log
 
+b2_backup_path="b2://{b2-backup-path-here}"
+local_backup_path="{local-backup-path-here}"
+
 export BORG_REPO="{borg-repo-here}"
 export BORG_PASSPHRASE="{borg-passphrase-here}"
-b2_path="b2://{b2-path-here}"
 # END CONFIG
 
 # some helpers and error handling:
@@ -79,7 +81,7 @@ prune_exit=$?
 # upload backups to b2
 info "Uploading backup to b2"
 
-PATH="$HOME/.local/bin:$PATH" b2 sync --keepDays 90 --replaceNewer "$BORG_REPO/" "$b2_path/"
+PATH="$HOME/.local/bin:$PATH" b2 sync --keepDays 90 --replaceNewer "$local_backup_path/" "$b2_backup_path/"
 
 b2_sync_exit=$?
 

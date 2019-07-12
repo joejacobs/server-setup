@@ -3,9 +3,11 @@
 # All rights reserved. Licensed under a 3-clause BSD License.
 
 # BEGIN CONFIG
+local_backup_path="/root/backup"
+
 borg_dir="/etc/borg"
 borg_version="1.1.10"
-borg_repo="/root/backup/borg"
+borg_repo="$local_backup_path/borg"
 borg_i386_url="https://github.com/borgbackup/borg/releases/download/$borg_version/borg-linux32"
 borg_amd64_url="https://github.com/borgbackup/borg/releases/download/$borg_version/borg-linux64"
 borg_aarch64_url="https://dl.bintray.com/borg-binary-builder/borg-binaries/borg-$borg_version-arm64"
@@ -206,12 +208,13 @@ if [[ $borg_script_contents == *"{borg-repo-here}"* ]]; then
         fi
     fi
 
-    read -p "Enter b2 path: " b2_path
+    read -p "Enter b2 bucket backup path: b2://" b2_backup_path
     echo ""
 
-    sed -i -e "s/{b2-path-here}/${b2_path//\//\\\/}/g" $borg_script
     sed -i -e "s/{borg-repo-here}/${borg_repo//\//\\\/}/g" $borg_script
+    sed -i -e "s/{b2-backup-path-here}/${b2_backup_path//\//\\\/}/g" $borg_script
     sed -i -e "s/{borg-passphrase-here}/${borg_passphrase//\//\\\/}/g" $borg_script
+    sed -i -e "s/{local-backup-path-here}/${local_backup_path//\//\\\/}/g" $borg_script
 fi
 
 if [ ! -f /var/spool/cron/crontabs/root ]; then
