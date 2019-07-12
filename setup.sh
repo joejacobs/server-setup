@@ -122,6 +122,7 @@ read -s -p "Enter b2 appKeyID: " b2_app_key_id
 echo ""
 read -s -p "Enter b2 appKey: " b2_app_key
 echo ""
+apt-get install -y python-setuptools
 pip install --upgrade --user b2
 PATH="$HOME/.local/bin:$PATH" b2 authorize-account $b2_app_key_id $b2_app_key
 
