@@ -10,10 +10,11 @@ following:
 4. Setup fail2ban
 5. Setup ufw
 6. Set timezone
-7. Install rsync
-8. Install htop
-9. Setup vim: including vimrc for root and user
-10. Setup borg: backup to local dir and upload to b2
+7. Install curl
+8. Install rsync
+9. Install htop
+10. Setup vim: including vimrc for root and user
+11. Setup borg: backup to local dir and upload to b2
 
 TODO
 ----
