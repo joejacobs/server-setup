@@ -10,6 +10,7 @@ log_file=$log_dir/`date -Iseconds`.log
 
 export BORG_REPO="{borg-repo-here}"
 export BORG_PASSPHRASE="{borg-passphrase-here}"
+b2_path="b2://{b2-path-here}"
 # END CONFIG
 
 # some helpers and error handling:
@@ -75,6 +76,13 @@ borg prune                          \
 
 prune_exit=$?
 
+# upload backups to b2
+info "Uploading backup to b2"
+
+PATH="$HOME/.local/bin:$PATH" b2 sync --keepDays 90 --replaceNewer "$BORG_REPO/" "$b2_path/"
+
+b2_sync_exit=$?
+
 # echo info messages of backup and prune exit status
 if [ $backup_exit -eq 0 ]; then
     info "Backup completed successfully"
@@ -92,8 +100,15 @@ else
     info "Prune completed with errors"
 fi
 
+if [ $b2_sync_exit -eq 0 ]; then
+    info "b2 sync completed successfully"
+else
+    info "b2 sync completed with warnings/errors"
+fi
+
 # use highest exit code as global exit code
 global_exit=$(( backup_exit > prune_exit ? backup_exit : prune_exit ))
+global_exit=$(( b2_sync_exit > global_exit ? b2_sync_exit : global_exit ))
 
 # rename log file if there are errors or warnings
 if [ $global_exit -eq 1 ]; then

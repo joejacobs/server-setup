@@ -107,7 +107,20 @@ fi
 ln -s $borg_bin /usr/bin/borg
 
 echo ""
-echo "12. Creating .vimrc files"
+echo "12. Install pip"
+apt-get install -y python-pip
+
+echo ""
+echo "13. Install b2 command line tool"
+read -s -p "Enter b2 appKeyID: " b2_app_key_id
+echo ""
+read -s -p "Enter b2 appKey: " b2_app_key
+echo ""
+pip install --upgrade --user b2
+PATH="$HOME/.local/bin:$PATH" b2 authorize-account $b2_app_key_id $b2_app_key
+
+echo ""
+echo "14. Creating .vimrc files"
 root_vimrc="/root/.vimrc"
 user_vimrc="$user_dir/.vimrc"
 
@@ -121,7 +134,7 @@ if [ ! -f $user_vimrc ]; then
 fi
 
 echo ""
-echo "13. Set vim as selected editor"
+echo "15. Set vim as selected editor"
 root_selected_editor="/root/.selected_editor"
 user_selected_editor="$user_dir/.selected_editor"
 
@@ -135,7 +148,7 @@ if [ ! -f $user_selected_editor ]; then
 fi
 
 echo ""
-echo "14. Creating 2GB blank file"
+echo "16. Creating 2GB blank file"
 make_blank_file=1
 
 if [ -f $blank_file ]; then
@@ -154,7 +167,7 @@ if [ $make_blank_file -eq 1 ]; then
 fi
 
 echo ""
-echo "15. Initialising borg repo"
+echo "17. Initialising borg repo"
 borg_script="$PWD/borg-backup.sh"
 borg_script_contents=$(cat $borg_script)
 chmod u+x $borg_script
@@ -177,6 +190,9 @@ else
     borg key export $borg_repo /root/borg.key
 fi
 
+echo ""
+echo "18. Add hourly borg cron job"
+
 if [[ $borg_script_contents == *"{borg-repo-here}"* ]]; then
     if [ -z $borg_passphrase ]; then
         read -s -p "Enter borg passphrase: " borg_passphrase
@@ -190,12 +206,13 @@ if [[ $borg_script_contents == *"{borg-repo-here}"* ]]; then
         fi
     fi
 
+    read -p "Enter b2 path: " b2_path
+    echo ""
+
+    sed -i -e "s/{b2-path-here}/${b2_path//\//\\\/}/g" $borg_script
     sed -i -e "s/{borg-repo-here}/${borg_repo//\//\\\/}/g" $borg_script
     sed -i -e "s/{borg-passphrase-here}/${borg_passphrase//\//\\\/}/g" $borg_script
 fi
-
-echo ""
-echo "16. Add hourly borg cron job"
 
 if [ ! -f /var/spool/cron/crontabs/root ]; then
     touch /var/spool/cron/crontabs/root
