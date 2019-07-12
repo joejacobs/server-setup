@@ -6,31 +6,31 @@
 
 # BEGIN CONFIG
 log_dir=/var/log/borg
-log_file=${log_dir}/`date -Iseconds`.log
+log_file=$log_dir/`date -Iseconds`.log
 
 export BORG_REPO="{borg-repo-here}"
 export BORG_PASSPHRASE="{borg-passphrase-here}"
 # END CONFIG
 
 # some helpers and error handling:
-info() { echo -e "\n$( date -Iseconds ) $*\n\n" >> ${log_file}; }
+info() { echo -e "\n$( date -Iseconds ) $*\n\n" >> $log_file; }
 trap 'echo $( date ) Backup interrupted >&2; exit 2' INT TERM
 
 # ensure logdir exists
-if [ ! -d ${log_dir} ]; then
-    mkdir ${log_dir}
+if [ ! -d $log_dir ]; then
+    mkdir $log_dir
 fi
 
 # ensure logfile exists (it shouldn't)
-if [ ! -f ${log_file} ]; then
-    touch ${log_file}
+if [ ! -f $log_file ]; then
+    touch $log_file
 fi
 
 # ensure borg repo as been initialised
-if [ ! -f "${BORG_REPO}/config" ] || [ ! -d "${BORG_REPO}/data" ]; then
-    info "borg repo not found in ${BORG_REPO}"
+if [ ! -f "$BORG_REPO/config" ] || [ ! -d "$BORG_REPO/data" ]; then
+    info "borg repo not found in $BORG_REPO"
     new_log_file=${log_file/.log/"-ERROR.log"}
-    mv ${log_file} ${new_log_file}
+    mv $log_file $new_log_file
     exit 2
 fi
 
@@ -55,7 +55,7 @@ borg create                         \
     /home                           \
     /root                           \
     /var                            \
-    >> ${log_file} 2>&1
+    >> $log_file 2>&1
 
 backup_exit=$?
 
@@ -71,22 +71,22 @@ borg prune                          \
     --keep-daily    365             \
     --keep-weekly   130             \
     --keep-monthly  60              \
-    >> ${log_file} 2>&1
+    >> $log_file 2>&1
 
 prune_exit=$?
 
 # echo info messages of backup and prune exit status
-if [ ${backup_exit} -eq 0 ]; then
+if [ $backup_exit -eq 0 ]; then
     info "Backup completed successfully"
-elif [ ${backup_exit} -eq 1 ]; then
+elif [ $backup_exit -eq 1 ]; then
     info "Backup completed with warnings"
 else
     info "Backup completed with errors"
 fi
 
-if [ ${prune_exit} -eq 0 ]; then
+if [ $prune_exit -eq 0 ]; then
     info "Prune completed successfully"
-elif [ ${prune_exit} -eq 1 ]; then
+elif [ $prune_exit -eq 1 ]; then
     info "Prune completed with warnings"
 else
     info "Prune completed with errors"
@@ -96,12 +96,12 @@ fi
 global_exit=$(( backup_exit > prune_exit ? backup_exit : prune_exit ))
 
 # rename log file if there are errors or warnings
-if [ ${global_exit} -eq 1 ]; then
+if [ $global_exit -eq 1 ]; then
     new_log_file=${log_file/.log/"-WARNING.log"}
-    mv ${log_file} ${new_log_file}
-elif [ ${global_exit} -ne 0 ]; then
+    mv $log_file $new_log_file
+elif [ $global_exit -ne 0 ]; then
     new_log_file=${log_file/.log/"-ERROR.log"}
-    mv ${log_file} ${new_log_file}
+    mv $log_file $new_log_file
 fi
 
-exit ${global_exit}
+exit $global_exit
