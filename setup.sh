@@ -70,19 +70,23 @@ echo "7. Set timezone"
 dpkg-reconfigure tzdata
 
 echo ""
-echo "8. Install rsync"
+echo "8. Install curl"
+apt-get install -y curl
+
+echo ""
+echo "9. Install rsync"
 apt-get install -y rsync
 
 echo ""
-echo "9. Install htop"
+echo "10. Install htop"
 apt-get install -y htop
 
 echo ""
-echo "10. Install vim"
+echo "11. Install vim"
 apt-get install -y vim
 
 echo ""
-echo "11. Install borg"
+echo "12. Install borg"
 borg_bin="$borg_dir/borg-$borg_version"
 arch="$(uname -m)"
 
@@ -109,11 +113,11 @@ fi
 ln -s $borg_bin /usr/bin/borg
 
 echo ""
-echo "12. Install pip"
+echo "13. Install pip"
 apt-get install -y python-pip
 
 echo ""
-echo "13. Install b2 command line tool"
+echo "14. Install b2 command line tool"
 read -s -p "Enter b2 appKeyID: " b2_app_key_id
 echo ""
 read -s -p "Enter b2 appKey: " b2_app_key
@@ -122,7 +126,7 @@ pip install --upgrade --user b2
 PATH="$HOME/.local/bin:$PATH" b2 authorize-account $b2_app_key_id $b2_app_key
 
 echo ""
-echo "14. Creating .vimrc files"
+echo "15. Creating .vimrc files"
 root_vimrc="/root/.vimrc"
 user_vimrc="$user_dir/.vimrc"
 
@@ -136,7 +140,7 @@ if [ ! -f $user_vimrc ]; then
 fi
 
 echo ""
-echo "15. Set vim as selected editor"
+echo "16. Set vim as selected editor"
 root_selected_editor="/root/.selected_editor"
 user_selected_editor="$user_dir/.selected_editor"
 
@@ -150,7 +154,7 @@ if [ ! -f $user_selected_editor ]; then
 fi
 
 echo ""
-echo "16. Creating 2GB blank file"
+echo "17. Creating 2GB blank file"
 make_blank_file=1
 
 if [ -f $blank_file ]; then
@@ -169,7 +173,7 @@ if [ $make_blank_file -eq 1 ]; then
 fi
 
 echo ""
-echo "17. Initialising borg repo"
+echo "18. Initialising borg repo"
 borg_script="$PWD/borg-backup.sh"
 borg_script_contents=$(cat $borg_script)
 chmod u+x $borg_script
@@ -193,7 +197,7 @@ else
 fi
 
 echo ""
-echo "18. Add hourly borg cron job"
+echo "19. Add hourly borg cron job"
 
 if [[ $borg_script_contents == *"{borg-repo-here}"* ]]; then
     if [ -z $borg_passphrase ]; then
