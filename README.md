@@ -21,6 +21,8 @@ TODO
 1. Setup AIDE
 2. Setup Logwatch
 3. Add ssh keys and disable password logins over ssh
+4. Backup regex for `/var/cache/bind` may match `/var/cache/bind*`. We only want
+   it to match `/var/cache/bind`, nothing else.
 
 License
 -------
