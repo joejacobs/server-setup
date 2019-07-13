@@ -5,8 +5,8 @@
 # Based on: https://borgbackup.readthedocs.io/en/stable/quickstart.html#automating-backups
 
 # BEGIN CONFIG
-log_dir=/var/log/borg
-log_file=$log_dir/`date -Iseconds`.log
+log_dir="/var/log/borg"
+log_file="$log_dir/$(date -Iseconds).log"
 
 b2_backup_path="b2://{b2-backup-path-here}"
 local_backup_path="{local-backup-path-here}"
