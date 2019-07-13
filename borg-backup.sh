@@ -81,7 +81,12 @@ prune_exit=$?
 # upload backups to b2
 info "Uploading backup to b2"
 
-PATH="$HOME/.local/bin:$PATH" b2 sync --keepDays 90 --replaceNewer "$local_backup_path/" "$b2_backup_path/"
+PATH="$HOME/.local/bin:$PATH" b2 sync \
+    --keepDays 90                     \
+    --replaceNewer                    \
+    "$local_backup_path/"             \
+    "$b2_backup_path/"                \
+    >> $log_file 2>&1
 
 b2_sync_exit=$?
 
