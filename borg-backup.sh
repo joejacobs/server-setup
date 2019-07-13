@@ -40,24 +40,24 @@ fi
 # backup /etc, /home, /root and /var
 info "Starting backup"
 
-borg create                         \
-    --verbose                       \
-    --filter AME                    \
-    --list                          \
-    --stats                         \
-    --show-rc                       \
-    --compression lzma              \
-    --exclude-caches                \
-    --exclude '/home/*/.cache/*'    \
-    --exclude '/root/backup/*'      \
-    --exclude '/var/cache/*'        \
-    --exclude '/var/tmp/*'          \
-                                    \
-    ::'{hostname}-{now}'            \
-    /etc                            \
-    /home                           \
-    /root                           \
-    /var                            \
+borg create                             \
+    --verbose                           \
+    --filter AME                        \
+    --list                              \
+    --stats                             \
+    --show-rc                           \
+    --compression lzma                  \
+    --exclude-caches                    \
+    --exclude '/home/*/.cache/*'        \
+    --exclude '/root/backup/*'          \
+    --exclude 're:^/var/cache/(?!bind)' \
+    --exclude '/var/tmp/*'              \
+                                        \
+    ::'{hostname}-{now}'                \
+    /etc                                \
+    /home                               \
+    /root                               \
+    /var                                \
     >> $log_file 2>&1
 
 backup_exit=$?
