@@ -4,16 +4,9 @@
 #
 # Based on: https://borgbackup.readthedocs.io/en/stable/quickstart.html#automating-backups
 
-# BEGIN CONFIG
+source ./borg.conf
 log_dir="/var/log/borg"
 log_file="$log_dir/$(date -Iseconds).log"
-
-b2_backup_path="b2://{b2-backup-path-here}"
-local_backup_path="{local-backup-path-here}"
-
-export BORG_REPO="{borg-repo-here}"
-export BORG_PASSPHRASE="{borg-passphrase-here}"
-# END CONFIG
 
 # some helpers and error handling:
 info() { echo -e "\n$( date -Iseconds ) $*\n\n" >> $log_file; }
@@ -84,8 +77,8 @@ info "Uploading backup to b2"
 PATH="$HOME/.local/bin:$PATH" b2 sync \
     --keepDays 90                     \
     --replaceNewer                    \
-    "$local_backup_path/"             \
-    "$b2_backup_path/"                \
+    "$LOCAL_BACKUP_PATH/"             \
+    "$B2_BACKUP_PATH/"                \
     >> $log_file 2>&1
 
 b2_sync_exit=$?

@@ -14,21 +14,6 @@ borg_aarch64_url="https://dl.bintray.com/borg-binary-builder/borg-binaries/borg-
 
 blank_file_size=2147483648
 blank_file="/root/2GB.blank"
-
-vimrc_contents="filetype plugin on
-\nfiletype plugin indent on
-\nsyntax on
-\n
-\nset smartindent
-\nset tabstop=4
-\nset shiftwidth=4
-\nset expandtab
-\nset linespace=7
-\n
-\nhi ColorColumn ctermbg=lightgrey guibg=lightgrey
-\nlet &colorcolumn=join(range(81,90),\",\")
-\nset number
-\nset ruler"
 # END CONFIG
 
 echo "1. Change root password"
@@ -128,15 +113,16 @@ PATH="$HOME/.local/bin:$PATH" b2 authorize-account $b2_app_key_id $b2_app_key
 
 echo ""
 echo "15. Creating .vimrc files"
+vimrc="$PWD/vimrc"
 root_vimrc="/root/.vimrc"
 user_vimrc="$user_dir/.vimrc"
 
 if [ ! -f $root_vimrc ]; then
-    echo -e $vimrc_contents > $root_vimrc
+    cp "$vimrc" "$root_vimrc"
 fi
 
 if [ ! -f $user_vimrc ]; then
-    echo -e $vimrc_contents > $user_vimrc
+    cp "$vimrc" "$user_vimrc"
     chown $username:$username $user_vimrc
 fi
 
@@ -175,9 +161,6 @@ fi
 
 echo ""
 echo "18. Initialising borg repo"
-borg_script="$PWD/borg-backup.sh"
-borg_script_contents=$(cat $borg_script)
-chmod u+x $borg_script
 
 if [ -f "$borg_repo/config" ] && [ -d "$borg_repo/data" ]; then
     echo "borg repo already initialised at $borg_repo"
@@ -199,8 +182,12 @@ fi
 
 echo ""
 echo "19. Add hourly borg cron job"
+borg_conf="$PWD/borg.conf"
+borg_script="$PWD/borg-backup.sh"
+borg_example_conf="$PWD/borg.example.conf"
+chmod u+x "$borg_script"
 
-if [[ $borg_script_contents == *"{borg-repo-here}"* ]]; then
+if [ ! -f "$borg_conf" ]; then
     if [ -z $borg_passphrase ]; then
         read -s -p "Enter borg passphrase: " borg_passphrase
         echo ""
@@ -216,10 +203,11 @@ if [[ $borg_script_contents == *"{borg-repo-here}"* ]]; then
     read -p "Enter b2 bucket backup path: b2://" b2_backup_path
     echo ""
 
-    sed -i -e "s/{borg-repo-here}/${borg_repo//\//\\\/}/g" $borg_script
-    sed -i -e "s/{b2-backup-path-here}/${b2_backup_path//\//\\\/}/g" $borg_script
-    sed -i -e "s/{borg-passphrase-here}/${borg_passphrase//\//\\\/}/g" $borg_script
-    sed -i -e "s/{local-backup-path-here}/${local_backup_path//\//\\\/}/g" $borg_script
+    cp "$borg_example_conf" "$borg_conf"
+    sed -i -e "s/{borg-repo-here}/${borg_repo//\//\\\/}/g" $borg_conf
+    sed -i -e "s/{b2-backup-path-here}/${b2_backup_path//\//\\\/}/g" $borg_conf
+    sed -i -e "s/{borg-passphrase-here}/${borg_passphrase//\//\\\/}/g" $borg_conf
+    sed -i -e "s/{local-backup-path-here}/${local_backup_path//\//\\\/}/g" $borg_conf
 fi
 
 if [ ! -f /var/spool/cron/crontabs/root ]; then
