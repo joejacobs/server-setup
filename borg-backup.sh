@@ -55,15 +55,16 @@ borg create                             \
 
 backup_exit=$?
 
-# use the `prune` subcommand to maintain 360 hourly, 365 daily, 130 weekly and
-# 60 monthly archives
+# use the `prune` subcommand to maintain 4-hourly backups for a month (30 days),
+# daily backups for a year (365 days), weekly backups for 2.5 years (130 weeks)
+# and monthly backups for 5 years (60 months).
 info "Pruning repository"
 
 borg prune                          \
     --list                          \
     --prefix '{hostname}-'          \
     --show-rc                       \
-    --keep-hourly   360             \
+    --keep-within   30d             \
     --keep-daily    365             \
     --keep-weekly   130             \
     --keep-monthly  60              \

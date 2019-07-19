@@ -217,5 +217,5 @@ fi
 cron=$(crontab -l)
 
 if [[ $cron != *"$borg_script"* ]]; then
-    crontab -l | { cat; echo "0 * * * * $borg_script"; } | crontab -
+    crontab -l | { cat; echo "0 */4 * * * $borg_script"; } | crontab -
 fi
