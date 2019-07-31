@@ -208,6 +208,7 @@ if [ ! -f "$borg_conf" ]; then
     sed -i -e "s/{b2-backup-path-here}/${b2_backup_path//\//\\\/}/g" $borg_conf
     sed -i -e "s/{borg-passphrase-here}/${borg_passphrase//\//\\\/}/g" $borg_conf
     sed -i -e "s/{local-backup-path-here}/${local_backup_path//\//\\\/}/g" $borg_conf
+    chmod u+x "$borg_conf"
 fi
 
 if [ ! -f /var/spool/cron/crontabs/root ]; then
