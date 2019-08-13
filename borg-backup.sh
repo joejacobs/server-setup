@@ -4,9 +4,10 @@
 #
 # Based on: https://borgbackup.readthedocs.io/en/stable/quickstart.html#automating-backups
 
-source ./borg.conf
 log_dir="/var/log/borg"
 log_file="$log_dir/$(date -Iseconds).log"
+err_log_file=${log_file/.log/"-ERROR.log"}
+warn_log_file=${log_file/.log/"-WARNING.log"}
 
 # some helpers and error handling:
 info() { echo -e "\n$( date -Iseconds ) $*\n\n" >> $log_file; }
@@ -22,11 +23,22 @@ if [ ! -f $log_file ]; then
     touch $log_file
 fi
 
+# load conf
+borg_conf="$(dirname $0)/borg.conf"
+info "Loading conf: $borg_conf"
+source "$borg_conf" >> $log_file 2>&1
+source_exit=$?
+
+if [ $source_exit -ne 0]; then
+    info "conf loading failed: $source_exit"
+    mv "$log_file" $"err_log_file"
+    exit 2
+fi
+
 # ensure borg repo as been initialised
 if [ ! -f "$BORG_REPO/config" ] || [ ! -d "$BORG_REPO/data" ]; then
     info "borg repo not found in $BORG_REPO"
-    new_log_file=${log_file/.log/"-ERROR.log"}
-    mv $log_file $new_log_file
+    mv "$log_file" "$err_log_file"
     exit 2
 fi
 
@@ -113,11 +125,9 @@ global_exit=$(( b2_sync_exit > global_exit ? b2_sync_exit : global_exit ))
 
 # rename log file if there are errors or warnings
 if [ $global_exit -eq 1 ]; then
-    new_log_file=${log_file/.log/"-WARNING.log"}
-    mv $log_file $new_log_file
+    mv "$log_file" "$warn_log_file"
 elif [ $global_exit -ne 0 ]; then
-    new_log_file=${log_file/.log/"-ERROR.log"}
-    mv $log_file $new_log_file
+    mv "$log_file" "$err_log_file"
 fi
 
 exit $global_exit
