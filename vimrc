@@ -9,6 +9,6 @@ set expandtab
 set linespace=7
 
 hi ColorColumn ctermbg=lightgrey guibg=lightgrey
-let &colorcolumn=join(range(81,90),\",\")
+let &colorcolumn=join(range(81,90),",")
 set number
 set ruler"
