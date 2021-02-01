@@ -88,7 +88,6 @@ prune_exit=$?
 info "Uploading backup to b2"
 
 PATH="$HOME/.local/bin:$PATH" b2 sync \
-    --keepDays 90                     \
     --replaceNewer                    \
     "$LOCAL_BACKUP_PATH/"             \
     "$B2_BACKUP_PATH/"                \
